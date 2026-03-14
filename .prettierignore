@@ -1,0 +1,8 @@
+node_modules
+.expo
+dist
+android
+ios
+build
+coverage
+*.generated.js
