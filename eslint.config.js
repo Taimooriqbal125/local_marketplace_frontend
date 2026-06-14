@@ -10,6 +10,14 @@ module.exports = defineConfig([
     ignores: ['dist/*', '.expo/*', 'node_modules/*', 'android/*', 'ios/*', 'build/*'],
   },
   {
+    settings: {
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
+      },
+    },
     rules: {
       // Show Prettier formatting issues as ESLint errors so --fix works
       'prettier/prettier': 'error',

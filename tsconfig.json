@@ -1,23 +1,19 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "expo/tsconfig.base.json",
   "compilerOptions": {
     "strict": true,
-    "baseUrl": ".",
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@theme/*": ["src/theme/*"],
-      "@services/*": ["src/services/*"],
-      "@store/*": ["src/redux/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@theme/*": ["./src/theme/*"],
+      "@services/*": ["./src/services/*"],
+      "@store/*": ["./src/redux/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@axios/*": ["./src/app/axios/*"]
     }
   },
-
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "app/modal.jsx",
-    "app/_layout.jsx"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "src/**/*", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }
