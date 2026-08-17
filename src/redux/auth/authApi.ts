@@ -14,9 +14,6 @@ export const authApi = baseApi.injectEndpoints({
           url: '/users/login',
           method: 'POST',
           data: formData,
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
         };
       },
       invalidatesTags: ['User'],

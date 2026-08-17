@@ -50,3 +50,6 @@ app-example
 
 # Skills Folder
 .agent/*
+
+# Kilo plans
+.kilo/

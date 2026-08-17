@@ -103,6 +103,44 @@ describe('axiosBaseQuery', () => {
       expect(result).toEqual({ data: { id: 1 } });
     });
 
+    it('should handle FormData without Content-Type header in request', async () => {
+      const mockFormData = new FormData();
+      mockAxiosInstance.mockResolvedValueOnce({ data: { token: 'abc' }, status: 200 });
+
+      const result = await query({
+        url: '/users/login',
+        method: 'POST',
+        data: mockFormData,
+      });
+
+      expect(mockAxiosInstance).toHaveBeenCalledWith({
+        url: '/users/login',
+        method: 'POST',
+        data: mockFormData,
+        params: undefined,
+        headers: undefined,
+      });
+      expect(result).toEqual({ data: { token: 'abc' } });
+    });
+
+    it('should not modify instance defaults when data is not FormData', async () => {
+      mockAxiosInstance.mockResolvedValueOnce({ data: { token: 'abc' }, status: 200 });
+
+      await query({
+        url: '/users/login',
+        method: 'POST',
+        data: { email: 'test@example.com', password: 'password' },
+      });
+
+      expect(mockAxiosInstance).toHaveBeenCalledWith({
+        url: '/users/login',
+        method: 'POST',
+        data: { email: 'test@example.com', password: 'password' },
+        params: undefined,
+        headers: undefined,
+      });
+    });
+
     it('should return error when 200 response contains a detail field', async () => {
       mockAxiosInstance.mockResolvedValueOnce({
         data: { detail: 'Something went wrong' },

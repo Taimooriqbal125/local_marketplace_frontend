@@ -73,6 +73,14 @@ axiosInstance.interceptors.request.use(
       console.warn(`[Axios] No token for: ${config.url}`);
     }
 
+    // When body is FormData, replace the default Content-Type with
+    // 'multipart/form-data' (without boundary). This triggers axios's own
+    // built-in fetch adapter cleanup at fetch.js:273-282 which strips it
+    // and lets fetch() auto-set multipart/form-data with the correct boundary.
+    if (config.data instanceof FormData) {
+      config.headers.setContentType('multipart/form-data');
+    }
+
     return config;
   },
   (error) => Promise.reject(error),
@@ -86,6 +94,7 @@ axiosInstance.interceptors.response.use(
 
     // 1. If not 401, propagation error
     if (error.response?.status !== 401) {
+      console.log('[Axios] Server error:', error.response?.status, JSON.stringify(error.response?.data));
       return Promise.reject({
         status: error.response?.status || 500,
         data: error.response?.data,
@@ -256,13 +265,12 @@ export const axiosBaseQuery = () => async (args: AxiosBaseQueryArgs) => {
 
     return { data: result.data };
   } catch (error: any) {
-    // If the interceptor handled and rejected it as a custom object:
-    if (error && error.status && error.data) {
-      console.log('[Axios] Backend returned error:', error.status, JSON.stringify(error.data));
+    // If the interceptor handled and rejected it as a custom object with a status:
+    if (error !== null && typeof error === 'object' && 'status' in error) {
       return {
         error: {
           status: error.status,
-          data: error.data,
+          data: error.data ?? { detail: 'No response data from server' },
         },
       };
     }
