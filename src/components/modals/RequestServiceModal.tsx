@@ -6,6 +6,7 @@ import { useCreateOrderMutation } from '@/redux/orders/orderApi';
 import fontsize from '@theme/fontsize';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -96,11 +97,10 @@ const RequestServiceModal = ({ visible, onClose, service }: RequestServiceModalP
             <KeyboardAvoidingView
               behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               style={styles.modalContainer}
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
             >
               <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={styles.content}>
-                  {/* Scrollable Content inside the card */}
                   <ScrollView
                     showsVerticalScrollIndicator={false}
                     bounces={false}
@@ -149,42 +149,43 @@ const RequestServiceModal = ({ visible, onClose, service }: RequestServiceModalP
                         placeholder="Tell the seller more about your requirements, specific areas to focus on, or parking instructions..."
                         placeholderTextColor={colors.light.mutedText}
                         textAlignVertical="top"
-                        onFocus={() => {
-                          // This helps ensure the input stays visible
-                        }}
                       />
                     </View>
-                  </ScrollView>
 
-                  {/* Action Buttons (Fixed or at bottom of scroll) */}
-                  <View style={styles.actionButtons}>
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.sendButton,
-                        isSubmitting && styles.disabledButton,
-                        Platform.OS === 'ios' &&
-                          pressed && { opacity: 0.8, scaleX: 0.98, scaleY: 0.98 },
-                      ]}
-                      onPress={onSendRequest}
-                      android_ripple={{ color: colors.light.successBackground }}
-                      disabled={isSubmitting}
-                    >
-                      <Text style={styles.sendButtonText}>
-                        {isSubmitting ? 'Sending Request...' : 'Send Request'}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      style={({ pressed }) => [
-                        styles.cancelButton,
-                        Platform.OS === 'ios' && pressed && { opacity: 0.7 },
-                      ]}
-                      onPress={handleClose}
-                      android_ripple={{ color: colors.light.border }}
-                      disabled={isSubmitting}
-                    >
-                      <Text style={styles.cancelButtonText}>Cancel</Text>
-                    </Pressable>
-                  </View>
+                    {/* Action Buttons */}
+                    <View style={styles.actionButtons}>
+                      <Pressable
+                        style={({ pressed }) => [
+                          styles.sendButton,
+                          Platform.OS === 'ios' &&
+                            pressed && { opacity: 0.8, scaleX: 0.98, scaleY: 0.98 },
+                        ]}
+                        onPress={onSendRequest}
+                        android_ripple={{ color: colors.light.successBackground }}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="small" color={colors.light.surface} />
+                            <Text style={styles.sendButtonText}>Sending Request...</Text>
+                          </View>
+                        ) : (
+                          <Text style={styles.sendButtonText}>Send Request</Text>
+                        )}
+                      </Pressable>
+                      <Pressable
+                        style={({ pressed }) => [
+                          styles.cancelButton,
+                          Platform.OS === 'ios' && pressed && { opacity: 0.7 },
+                        ]}
+                        onPress={handleClose}
+                        android_ripple={{ color: colors.light.border }}
+                        disabled={isSubmitting}
+                      >
+                        <Text style={styles.cancelButtonText}>Cancel</Text>
+                      </Pressable>
+                    </View>
+                  </ScrollView>
                 </View>
               </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
@@ -207,11 +208,6 @@ export const styles = StyleSheet.create({
   modalContainer: {
     width: '100%',
     maxWidth: 400,
-  },
-  disabledButton: {
-    backgroundColor: colors.light.successBackground,
-    shadowOpacity: 0,
-    elevation: 0,
   },
   content: {
     width: '100%',
@@ -277,7 +273,8 @@ export const styles = StyleSheet.create({
     minHeight: 100,
   },
   actionButtons: {
-    marginTop: 8,
+    marginTop: 16,
+    marginBottom: 8,
   },
   sendButton: {
     backgroundColor: colors.light.success,
@@ -291,6 +288,12 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
   sendButtonText: {
     color: colors.light.surface,

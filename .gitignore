@@ -1,5 +1,3 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
 # dependencies
 node_modules/
 
@@ -39,17 +37,35 @@ yarn-error.*
 
 # Logs
 *.log
-# typescript
+
+# TypeScript
 *.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# Firebase config
+google-services.json
+
+# Personal notes
+codeexample.md
+responses.md
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Native build artifacts
+*.hprof
 
 app-example
 
-# generated native folders
+# Generated native folders
 /ios
 /android
 
 # Skills Folder
-.agent/*
+.agents/
 
 # Kilo plans
 .kilo/

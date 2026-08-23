@@ -3,11 +3,13 @@ import { useCreateReviewMutation } from '@/redux/reviews/reviewApi';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -74,72 +76,87 @@ const AddReviews = ({ visible, onClose, orderId }: AddReviewsProps) => {
             <KeyboardAvoidingView
               behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               style={styles.modalContainer}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
             >
               <View style={styles.content}>
-                <Text style={styles.modalTitle}>Leave a Review</Text>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  bounces={false}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  <Text style={styles.modalTitle}>Leave a Review</Text>
 
-                <Text style={styles.label}>Rate your experience</Text>
-                <View style={styles.starsContainer}>
-                  {[1, 2, 3, 4, 5].map((star) => (
+                  <Text style={styles.label}>Rate your experience</Text>
+                  <View style={styles.starsContainer}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Pressable
+                        key={star}
+                        onPress={() => setRating(star)}
+                        style={({ pressed }) => [
+                          styles.starPressable,
+                          Platform.OS === 'ios' && pressed && { scaleX: 1.1, scaleY: 1.1 },
+                        ]}
+                        android_ripple={{
+                          color: colors.light.border,
+                          borderless: true,
+                          radius: 24,
+                        }}
+                      >
+                        <Ionicons
+                          name={star <= rating ? 'star' : 'star-outline'}
+                          size={40}
+                          color={star <= rating ? colors.light.warning : colors.light.border}
+                        />
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  <Text style={styles.label}>Add a comment (Optional)</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Tell us about your experience..."
+                    placeholderTextColor={colors.light.mutedText}
+                    value={comment}
+                    onChangeText={setComment}
+                    multiline
+                    numberOfLines={4}
+                    textAlignVertical="top"
+                  />
+
+                  <View style={styles.actionButtons}>
                     <Pressable
-                      key={star}
-                      onPress={() => setRating(star)}
                       style={({ pressed }) => [
-                        styles.starPressable,
-                        Platform.OS === 'ios' && pressed && { scaleX: 1.1, scaleY: 1.1 },
+                        styles.submitButton,
+                        Platform.OS === 'ios' &&
+                          pressed && { opacity: 0.8, scaleX: 0.98, scaleY: 0.98 },
                       ]}
-                      android_ripple={{ color: colors.light.border, borderless: true, radius: 24 }}
+                      onPress={handleSubmit}
+                      android_ripple={{ color: colors.light.successBackground }}
+                      disabled={isLoading}
                     >
-                      <Ionicons
-                        name={star <= rating ? 'star' : 'star-outline'}
-                        size={40}
-                        color={star <= rating ? colors.light.warning : colors.light.border}
-                      />
+                      {isLoading ? (
+                        <View style={styles.loadingContainer}>
+                          <ActivityIndicator size="small" color={colors.light.surface} />
+                          <Text style={styles.submitButtonText}>Submitting Review...</Text>
+                        </View>
+                      ) : (
+                        <Text style={styles.submitButtonText}>Submit Review</Text>
+                      )}
                     </Pressable>
-                  ))}
-                </View>
 
-                <Text style={styles.label}>Add a comment (Optional)</Text>
-                <TextInput
-                  style={styles.textInput}
-                  placeholder="Tell us about your experience..."
-                  placeholderTextColor={colors.light.mutedText}
-                  value={comment}
-                  onChangeText={setComment}
-                  multiline
-                  numberOfLines={4}
-                  textAlignVertical="top"
-                />
-
-                <View style={styles.actionButtons}>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.submitButton,
-                      isLoading && styles.disabledButton,
-                      Platform.OS === 'ios' &&
-                        pressed && { opacity: 0.8, scaleX: 0.98, scaleY: 0.98 },
-                    ]}
-                    onPress={handleSubmit}
-                    android_ripple={{ color: colors.light.successBackground }}
-                    disabled={isLoading}
-                  >
-                    <Text style={styles.submitButtonText}>
-                      {isLoading ? 'Submitting Review...' : 'Submit Review'}
-                    </Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.cancelButton,
-                      Platform.OS === 'ios' && pressed && { opacity: 0.7 },
-                    ]}
-                    onPress={handleClose}
-                    android_ripple={{ color: colors.light.border }}
-                    disabled={isLoading}
-                  >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                  </Pressable>
-                </View>
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.cancelButton,
+                        Platform.OS === 'ios' && pressed && { opacity: 0.7 },
+                      ]}
+                      onPress={handleClose}
+                      android_ripple={{ color: colors.light.border }}
+                      disabled={isLoading}
+                    >
+                      <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </Pressable>
+                  </View>
+                </ScrollView>
               </View>
             </KeyboardAvoidingView>
           </TouchableWithoutFeedback>
@@ -223,10 +240,11 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  disabledButton: {
-    backgroundColor: colors.light.successBackground,
-    shadowOpacity: 0,
-    elevation: 0,
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
   submitButtonText: {
     color: colors.light.surface,
